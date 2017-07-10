@@ -5,7 +5,7 @@ namespace Building\Domain\Command;
 use Prooph\Common\Messaging\Command;
 use Rhumsaa\Uuid\Uuid;
 
-final class CheckIn extends Command
+final class CheckOut extends Command
 {
     private $username;
     private $buildingId;
