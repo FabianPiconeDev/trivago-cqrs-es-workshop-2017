@@ -12,6 +12,7 @@ use Bernard\QueueFactory\PersistentFactory;
 use Building\Domain\Aggregate\Building;
 use Building\Domain\Command;
 use Building\Domain\Repository\BuildingRepositoryInterface;
+use Building\Infrastructure\CommandLineWriter;
 use Building\Infrastructure\Repository\BuildingRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver;
@@ -201,18 +202,22 @@ return new ServiceManager([
         },
         Command\CheckIn::class => function (ContainerInterface $container) : callable {
             $buildings = $container->get(BuildingRepositoryInterface::class);
+            $commandLineWriter = $container->get(CommandLineWriter::class);
 
-            return function (Command\CheckIn $command) use ($buildings) {
+            return function (Command\CheckIn $command) use ($buildings, $commandLineWriter) {
                 $building = $buildings->get($command->buildingId());
                 $building->checkInUser($command->username());
+                $commandLineWriter->writeStderr('user checked in');
             };
         },
         Command\CheckOut::class => function (ContainerInterface $container) : callable {
             $buildings = $container->get(BuildingRepositoryInterface::class);
+            $commandLineWriter = $container->get(CommandLineWriter::class);
 
-            return function (Command\CheckOut $command) use ($buildings) {
+            return function (Command\CheckOut $command) use ($buildings, $commandLineWriter) {
                 $building = $buildings->get($command->buildingId());
                 $building->checkOutUser($command->username());
+                $commandLineWriter->writeStderr('user checked out');
             };
         },
         BuildingRepositoryInterface::class => function (ContainerInterface $container) : BuildingRepositoryInterface {
@@ -224,5 +229,8 @@ return new ServiceManager([
                 )
             );
         },
+        CommandLineWriter::class => function(): CommandLineWriter {
+            return new CommandLineWriter();
+        }
     ],
 ]);
