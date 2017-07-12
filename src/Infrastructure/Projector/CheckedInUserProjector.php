@@ -24,14 +24,20 @@ final class CheckedInUserProjector
     public function project(AggregateChanged $event): void
     {
         $aggregateId = Uuid::fromString($event->aggregateId());
-        $recordedEvents = $this->eventStore->loadEventsByMetadataFrom(
+        $recordedEvents = $this->getRecordedEvents($aggregateId);
+        $checkedInUsernames = $this->getCheckedInUsernames($recordedEvents);
+
+        $this->writer->write($aggregateId, $checkedInUsernames);
+    }
+
+    private function getRecordedEvents(Uuid $aggregateId): \Iterator
+    {
+        return $this->eventStore->loadEventsByMetadataFrom(
             new StreamName('event_stream'),
             [
-                'aggregate_id' => $aggregateId,
+                'aggregate_id' => $aggregateId->toString(),
             ]
         );
-
-        $this->writer->write($aggregateId, $this->getCheckedInUsernames($recordedEvents));
     }
 
     private function getCheckedInUsernames(\Iterator $recordedEvents): array
