@@ -13,6 +13,7 @@ use Building\Domain\Aggregate\Building;
 use Building\Domain\Command;
 use Building\Domain\Repository\BuildingRepositoryInterface;
 use Building\Infrastructure\CommandLineWriter;
+use Building\Infrastructure\Projector\CheckedInUserProjectionWriter;
 use Building\Infrastructure\Repository\BuildingRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver;
@@ -189,6 +190,15 @@ return new ServiceManager([
                 new Producer($container->get(QueueFactory::class),new EventDispatcher()),
                 'commands'
             );
+        },
+
+        CheckedInUserProjector::class => function (ContainerInterface $container): CheckedInUserProjector {
+            $eventStore = $container->get(EventStore::class);
+            return new CheckedInUserProjector($eventStore);
+        },
+
+        CheckedInUserProjectionWriter::class => function (ContainerInterface $container): CheckedInUserProjector {
+            return new CheckedInUserProjectionWriter();
         },
 
         // Command -> CommandHandlerFactory
