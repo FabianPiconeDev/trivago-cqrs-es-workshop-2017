@@ -11,7 +11,10 @@ use Bernard\QueueFactory;
 use Bernard\QueueFactory\PersistentFactory;
 use Building\Domain\Aggregate\Building;
 use Building\Domain\Command;
+use Building\Domain\DomainEvent\UserWasCheckedIn;
+use Building\Domain\DomainEvent\UserWasCheckedOut;
 use Building\Domain\Repository\BuildingRepositoryInterface;
+use Building\Infrastructure\CheckedInUserProjector;
 use Building\Infrastructure\CommandLineWriter;
 use Building\Infrastructure\Projector\CheckedInUserProjectionWriter;
 use Building\Infrastructure\Repository\BuildingRepository;
@@ -26,6 +29,7 @@ use Prooph\Common\Event\ActionEventListenerAggregate;
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\Common\Messaging\FQCNMessageFactory;
 use Prooph\Common\Messaging\NoOpMessageConverter;
+use Prooph\EventSourcing\AggregateChanged;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Adapter\Doctrine\DoctrineEventStoreAdapter;
 use Prooph\EventStore\Adapter\Doctrine\Schema\EventStoreSchema;
@@ -199,6 +203,25 @@ return new ServiceManager([
 
         CheckedInUserProjectionWriter::class => function (ContainerInterface $container): CheckedInUserProjector {
             return new CheckedInUserProjectionWriter();
+        },
+
+        'project-checked-in-users' => function (ContainerInterface $container): callable {
+            $projector = $container->get(CheckedInUserProjector::class);
+            return function (AggregateChanged $event) use ($projector) {
+                $projector->project($event);
+            };
+        },
+
+        UserWasCheckedIn::class . '-projectors' => function (ContainerInterface $container): array {
+            return [
+                $container->get('project-checked-in-users'),
+            ];
+        },
+
+        UserWasCheckedOut::class . '-projectors' => function (ContainerInterface $container): array {
+            return [
+                $container->get('project-checked-in-users'),
+            ];
         },
 
         // Command -> CommandHandlerFactory
