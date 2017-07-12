@@ -14,9 +14,9 @@ use Building\Domain\Command;
 use Building\Domain\DomainEvent\UserWasCheckedIn;
 use Building\Domain\DomainEvent\UserWasCheckedOut;
 use Building\Domain\Repository\BuildingRepositoryInterface;
-use Building\Infrastructure\CheckedInUserProjector;
 use Building\Infrastructure\CommandLineWriter;
 use Building\Infrastructure\Projector\CheckedInUserProjectionWriter;
+use Building\Infrastructure\Projector\CheckedInUserProjector;
 use Building\Infrastructure\Repository\BuildingRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver;
@@ -197,11 +197,13 @@ return new ServiceManager([
         },
 
         CheckedInUserProjector::class => function (ContainerInterface $container): CheckedInUserProjector {
-            $eventStore = $container->get(EventStore::class);
-            return new CheckedInUserProjector($eventStore);
+            return new CheckedInUserProjector(
+                $container->get(EventStore::class),
+                $container->get(CheckedInUserProjectionWriter::class)
+            );
         },
 
-        CheckedInUserProjectionWriter::class => function (ContainerInterface $container): CheckedInUserProjector {
+        CheckedInUserProjectionWriter::class => function (ContainerInterface $container): CheckedInUserProjectionWriter {
             return new CheckedInUserProjectionWriter();
         },
 
