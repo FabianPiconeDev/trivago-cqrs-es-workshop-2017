@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Building\Infrastructure;
+namespace Building\Infrastructure\Projector;
 
 use Building\Domain\DomainEvent\UserWasCheckedIn;
 use Building\Domain\DomainEvent\UserWasCheckedOut;
