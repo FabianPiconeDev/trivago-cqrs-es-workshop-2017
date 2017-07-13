@@ -43,3 +43,23 @@ Following steps are to be implemented:
 - [x] Provide console output (STDERR) every time a check-in happens (event handler)
 - [x] Provide console output (STDERR) every time a check-out happens (event handler)
 - [x] Provide a file per building (accessible via HTTP) with usernames of currently checked-in persons
+
+#### Additional notes from the forker
+- [x] Prevent people from double check-in
+- [x] Prevent people from double check-out
+
+##### Proccess summary starting from a command until the domain event is being written
+1. Command (contains only a payload) is registered in the container
+2. Command registration returns a callable for latter execution
+3. Command gets passed to the CommandBus (web layer)
+4. CommandBus calls listener
+5. Listener executes code from the command registered callable
+6. Callable gets an aggregate and performs an action
+7. The action creates an domain event
+
+Specify one "when" method per domain event, otherwise the framework will crash. These methods are for
+hydrating the aggregate from the event store.
+
+Checking-in a user calls its "when" method:
+1. Before check-in. By getting aggregate that is going to be hydrated, thus can be called multiple times
+2. After check-in, one time again for ensuring the state change on this aggregate

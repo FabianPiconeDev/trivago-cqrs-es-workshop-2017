@@ -67,6 +67,7 @@ call_user_func(function () {
     });
 
     $app->post('/checkin/{buildingId}', function (Request $request, Response $response) use ($sm) : Response {
+        /** @var CommandBus $commandBus */
         $commandBus = $sm->get(CommandBus::class);
         $buildingId = $request->getAttribute('buildingId');
         $commandBus->dispatch(Command\CheckIn::fromUserNameAndBuildingId(
