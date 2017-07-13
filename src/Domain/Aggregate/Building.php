@@ -71,13 +71,11 @@ final class Building extends AggregateRoot
 
     public function whenUserWasCheckedIn(UserWasCheckedIn $event): void
     {
-
         $this->checkedInUsers[$event->username()] = null;
     }
 
     public function whenUserWasCheckedOut(UserWasCheckedOut $event): void
     {
-
         unset($this->checkedInUsers[$event->username()]);
     }
 
