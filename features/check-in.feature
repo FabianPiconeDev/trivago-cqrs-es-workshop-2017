@@ -16,5 +16,5 @@ Feature: Check in
     Given there is a building
     And guest named "fabian" is already checked in
     When guest with name "fabian" checks in
-    Then system must throw an exception that guest is already checked in
+    Then system must recognize multiple check in from "fabian"
     And building must have one checked-in user named "fabian"

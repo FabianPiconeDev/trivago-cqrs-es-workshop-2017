@@ -4,12 +4,17 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Building\Domain\Aggregate\Building;
+use PHPUnit\Framework\Assert;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 /**
  * Defines application features from the specific context.
  */
 class FeatureContext implements Context
 {
+
+    private $building;
 
     /**
      * Initializes context.
@@ -20,6 +25,7 @@ class FeatureContext implements Context
      */
     public function __construct()
     {
+        $this->building = Building::new('Holiday Inn');
     }
 
     /**
@@ -27,7 +33,7 @@ class FeatureContext implements Context
      */
     public function thereIsABuilding()
     {
-        throw new PendingException();
+        Assert::assertInstanceOf(Building::class, $this->building);
     }
 
     /**
@@ -35,7 +41,7 @@ class FeatureContext implements Context
      */
     public function guestNamedIsNotCheckedIn($arg1)
     {
-        throw new PendingException();
+        Assert::assertArrayNotHasKey($arg1, $this->reflectProperty('checkedInUsers'));
     }
 
     /**
@@ -43,7 +49,8 @@ class FeatureContext implements Context
      */
     public function guestWithNameChecksIn($arg1)
     {
-        throw new PendingException();
+        $this->building->checkInUser($arg1);
+        Assert::assertArrayHasKey($arg1, $this->reflectProperty('checkedInUsers'));
     }
 
     /**
@@ -51,7 +58,8 @@ class FeatureContext implements Context
      */
     public function buildingMustHaveOneCheckedInUserNamed($arg1)
     {
-        throw new PendingException();
+        Assert::assertCount(1, $this->reflectProperty('checkedInUsers'));
+        Assert::assertArrayHasKey($arg1, $this->reflectProperty('checkedInUsers'));
     }
 
     /**
@@ -59,14 +67,22 @@ class FeatureContext implements Context
      */
     public function guestNamedIsAlreadyCheckedIn($arg1)
     {
-        throw new PendingException();
+        $this->building->checkInUser($arg1);
+        Assert::assertArrayHasKey($arg1, $this->reflectProperty('checkedInUsers'));
     }
 
     /**
-     * @Then system must throw an exception that guest is already checked in
+     * @Then system must recognize multiple check in from :arg1
      */
-    public function systemMustThrowAnExceptionThatGuestIsAlreadyCheckedIn()
+    public function systemMustRecognizeMultipleCheckInFrom($arg1)
     {
-        throw new PendingException();
+        Assert::assertTrue($this->reflectProperty('multipleCheckInDetected'));
+    }
+
+    private function reflectProperty(string $property) {
+        $buildingReflectionClass = new ReflectionClass(Building::class);
+        $checkedInUsersReflectionProperty = $buildingReflectionClass->getProperty($property);
+        $checkedInUsersReflectionProperty->setAccessible(true);
+        return $checkedInUsersReflectionProperty->getValue($this->building);
     }
 }
