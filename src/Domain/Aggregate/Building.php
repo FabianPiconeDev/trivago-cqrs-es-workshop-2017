@@ -21,7 +21,8 @@ final class Building extends AggregateRoot
      * @var string
      */
     private $name;
-    private $checkedInUsers;
+    private $checkedInUsers = [];
+    private $multipleCheckInDetected = false;
 
     public static function new(string $name) : self
     {
@@ -40,7 +41,8 @@ final class Building extends AggregateRoot
     public function checkInUser(string $username): void
     {
         if(array_key_exists($username, $this->checkedInUsers)) {
-            throw new \DomainException('User is already checked in.');
+            $this->multipleCheckInDetected = true;
+            return;
         }
         $this->recordThat(UserWasCheckedIn::occur(
             $this->uuid->toString(),

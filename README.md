@@ -47,6 +47,7 @@ Following steps are to be implemented:
 #### Additional notes from the forker
 - [x] Prevent people from double check-in
 - [x] Prevent people from double check-out
+- [x] Write BDD tests written in Gherkin for Behat
 
 ##### Proccess summary starting from a command until the domain event is being written
 1. Command (contains only a payload) is registered in the container
