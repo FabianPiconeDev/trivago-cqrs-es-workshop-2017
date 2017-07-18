@@ -70,7 +70,7 @@ class FeatureContext implements Context
     /**
      * @Then system must recognize multiple check in
      */
-    public function systemMustRecognizeMultipleCheckInFrom()
+    public function systemMustRecognizeMultipleCheckIn()
     {
         Assert::assertTrue($this->reflectProperty('multipleCheckInDetected'));
     }
